@@ -1,0 +1,11 @@
+name: build and deploy google cloud function
+
+on:
+  workflow_call:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v2
