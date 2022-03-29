@@ -2,10 +2,15 @@ name: build and deploy google cloud function
 
 on:
   workflow_call:
-
+    inputs:
+      environmentName:
+        required: false
+        type: string
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    environnment:
+      name: ${{ inputs.environmentName }}
     steps:
       - name: checkout source
         uses: actions/checkout@v2
