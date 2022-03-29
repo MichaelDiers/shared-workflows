@@ -1,0 +1,9 @@
+name: pre deployment steps
+on:
+  workflow_call:
+jobs:
+  pre_deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v2
