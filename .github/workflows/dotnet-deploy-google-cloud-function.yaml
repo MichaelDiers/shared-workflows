@@ -129,7 +129,7 @@ jobs:
           event_trigger_type: google.pubsub.topic.publish
           event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
   prod:
-    needs: prod
+    needs: stage
     environment:
       name: production
     env:
