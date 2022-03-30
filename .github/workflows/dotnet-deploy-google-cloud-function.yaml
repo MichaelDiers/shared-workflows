@@ -53,7 +53,7 @@ jobs:
     env:
       APPSETTINGS_JSON: ${{ secrets.appSettingsJsonTest }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
-      PROJECT_ID: ${{ inputs.projectIdTest }}
+      PROJECT_ID: ${{ secrets.projectIdTest }}
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
