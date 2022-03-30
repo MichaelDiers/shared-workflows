@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
+      MESSAGE_ENCODING: ${{ inputs.messageEnconding }}
       PROJECT_ID: ${{ secrets.projectIdTest }}
       TOPIC_NAME: ${{ secrets.topicName }}_TEST
       SCHEMA_NAME: ${{ secrets.topicName }}_TEST_SCHEMA
