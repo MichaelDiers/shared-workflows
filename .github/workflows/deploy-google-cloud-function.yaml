@@ -2,19 +2,7 @@ name: deploy-google-cloud-function
 on:
   workflow_call:
     inputs:
-      config:
-        required: true
-        type: string
-      environmentName:
-        required: true
-        type: string
       functionName:
-        required: true
-        type: string
-      nugetConfig:
-        required: true
-        type: string
-      nugetUserName:
         required: true
         type: string
       projectName:
@@ -23,6 +11,18 @@ on:
       solutionFolder:
         required: true
         type: string
+      config:
+        type: string
+        default: Release
+      dotnetVersion:
+        type: string
+        default: 3.1.x
+      nugetConfig:
+        type: string
+        default: .github/workflows/Generic-Nuget.config
+      nugetUserName:
+        type: string
+        default: MichaelDiers
     secrets:
       gcpCredentials:
         required: true
@@ -44,7 +44,7 @@ jobs:
       - name: use .net core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.x
+          dotnet-version: ${{ input.dotnetVersion }}
       - name: nuget config
         run: |
           echo $(sed -e "s/\${USERNAME}/${{ inputs.nugetUserName }}/" -e "s@\${TOKEN}@${{ secrets.GITHUB_TOKEN }}@" ${{ inputs.nugetConfig }}) > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/nuget.config
