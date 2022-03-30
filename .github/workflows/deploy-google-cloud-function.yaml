@@ -28,23 +28,39 @@ on:
         type: string
         default: MichaelDiers
     secrets:
-      gcpCredentials:
+      gcpCredentialsTest:
         required: true
-      projectId:
+      gcpCredentialsStage:
+        required: true
+      gcpCredentialsProd:
+        required: true
+      projectIdTest:
+        required: true
+      projectIdStage:
+        required: true
+      projectIdProd:
         required: true
       subTopicName:
         required: false
-      appSettingsJson:
+      appSettingsJsonTest:
+        required: true
+      appSettingsJsonStage:
+        required: true
+      appSettingsJsonProd:
         required: true
 jobs:
-  build_and_deploy:
+  test:
+    env:
+      APPSETTINGS_JSON: ${{ secrets.appSettingsJsonTest }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
+      PROJECT_ID: ${{ inputs.projectId }}
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
         uses: actions/checkout@v2
       - name: configure appsettings.json
         run: |
-          echo ${{ secrets.appSettingsJson }} > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/appsettings.json
+          echo ${{ env.APPSETTINGS_JSON }} > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/appsettings.json
       - name: use .net core
         uses: actions/setup-dotnet@v1
         with:
@@ -60,15 +76,15 @@ jobs:
       - name: auth
         uses: google-github-actions/auth@v0
         with:
-          credentials_json: '${{ secrets.gcpCredentials }}'
+          credentials_json: '${{ env.GCP_CREDENTIALS }}'
       - name: deploy pub/sub
         if: ${{ inputs.trigger == 'pubsub' }}
         uses: google-github-actions/deploy-cloud-functions@v0
         with:
           name: ${{ inputs.functionName }}
           runtime: dotnet3
-          project_id: ${{ inputs.projectId }}
+          project_id: ${{ env.PROJECT_ID }}
           source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
-          event_trigger_resource: projects/${{ secrets.projectId }}/topics/${{ secrets.subTopicName }}
+          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
