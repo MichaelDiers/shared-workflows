@@ -47,7 +47,7 @@ jobs:
       NUGET_AUTH_TOKEN: ${{ secrets.nugetAuthToken }}
       NUGET_CONFIG: ${{ inputs.nugetConfig }}
       NUGET_USERNAME: ${{ inputs.nugetUserName }}
-      PACKAGE_FILE_BASE: 'nugets/${{ inputs.solutionFolder }}/${{ inputs.projectName }}/bin'
+      PACKAGE_FILE_BASE: '${{ inputs.solutionFolder }}/${{ inputs.projectName }}/bin'
       PACKAGE_SOURCE: ${{ inputs.packageSource }} 
       PACKAGE_VERSION: '${{ inputs.packageVersion }}.$GITHUB_RUN_NUMBER'
       SOLUTION_FILE: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.sln
