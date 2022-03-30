@@ -50,7 +50,7 @@ jobs:
       PACKAGE_FILE_BASE: 'nugets/${{ inputs.solutionFolder }}/${{ inputs.projectName }}/bin'
       PACKAGE_SOURCE: ${{ inputs.packageSource }} 
       PACKAGE_VERSION: '${{ inputs.packageVersion }}.$GITHUB_RUN_NUMBER'
-      SOLUTION_FILE: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.csproj
+      SOLUTION_FILE: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.sln
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
