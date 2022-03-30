@@ -33,6 +33,7 @@ on:
       projectId:
         required: true
       subTopicName:
+        required: false
       appSettingsJson:
         required: true
 jobs:
