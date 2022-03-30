@@ -39,18 +39,18 @@ jobs:
   prod:
     env:
       CONFIG: ${{ inputs.config }}
-      CSPROJ_FILE: ${{ inputs.solutionFolder }}/${{ input.projectName }}/${{ input.projectName }}.csproj
-      CSPROJ_NUGET_CONFIG: ${{ inputs.solutionFolder }}/${{ input.projectName }}/nuget.config
-      CSPROJ_TEST_NUGET_CONFIG: ${{ inputs.solutionFolder }}/${{ input.projectName }}.Tests/nuget.config
+      CSPROJ_FILE: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/${{ inputs.projectName }}.csproj
+      CSPROJ_NUGET_CONFIG: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/nuget.config
+      CSPROJ_TEST_NUGET_CONFIG: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.Tests/nuget.config
       DOTNET_VERSION: ${{ inputs.dotnetVersion }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NUGET_AUTH_TOKEN: ${{ secrets.nugetAuthToken }}
       NUGET_CONFIG: ${{ inputs.nugetConfig }}
       NUGET_USERNAME: ${{ inputs.nugetUserName }}
-      PACKAGE_FILE_BASE: 'nugets/${{ inputs.solutionFolder }}/${{ input.projectName }}/bin'
+      PACKAGE_FILE_BASE: 'nugets/${{ inputs.solutionFolder }}/${{ inputs.projectName }}/bin'
       PACKAGE_SOURCE: ${{ inputs.packageSource }} 
       PACKAGE_VERSION: '${{ inputs.packageVersion }}.$GITHUB_RUN_NUMBER'
-      SOLUTION_FILE: ${{ inputs.solutionFolder }}/${{ input.projectName }}.csproj
+      SOLUTION_FILE: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.csproj
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
