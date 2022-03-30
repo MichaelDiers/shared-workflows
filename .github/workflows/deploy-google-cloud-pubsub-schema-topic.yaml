@@ -32,8 +32,8 @@ jobs:
     env:
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
       PROJECT_ID: ${{ secrets.projectIdTest }}
-      TOPIC_NAME: ${{ secrets.topicName }}-test
-      SCHEMA_NAME: ${{ secrets.topicName }}-schema-test
+      TOPIC_NAME: ${{ secrets.topicName }}_TEST
+      SCHEMA_NAME: ${{ secrets.topicName }}_TEST_SCHEMA
       SCHEMA_FILE: ${{ inputs.schemaFile }}
       SCHEMA_TYPE: ${{ inputs.schemaType }}
     steps:
