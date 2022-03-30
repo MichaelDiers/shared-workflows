@@ -88,3 +88,85 @@ jobs:
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
           event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+  stage:
+    needs: test
+    env:
+      APPSETTINGS_JSON: ${{ secrets.appSettingsJsonStage }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
+      PROJECT_ID: ${{ secrets.projectIdStage }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v2
+      - name: configure appsettings.json
+        run: |
+          echo ${{ env.APPSETTINGS_JSON }} > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/appsettings.json
+      - name: use .net core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ inputs.dotnetVersion }}
+      - name: nuget config
+        run: |
+          echo $(sed -e "s/\${USERNAME}/${{ inputs.nugetUserName }}/" -e "s@\${TOKEN}@${{ secrets.GITHUB_TOKEN }}@" ${{ inputs.nugetConfig }}) > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/nuget.config
+          cp ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/nuget.config ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.Tests/nuget.config
+      - name: build
+        run: dotnet build ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.sln --configuration "${{ inputs.config }}"
+      - name: test
+        run: dotnet test ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.sln --configuration "${{ inputs.config }}" --no-build
+      - name: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: '${{ env.GCP_CREDENTIALS }}'
+      - name: deploy pub/sub
+        if: ${{ inputs.trigger == 'pubsub' }}
+        uses: google-github-actions/deploy-cloud-functions@v0
+        with:
+          name: ${{ inputs.functionName }}
+          runtime: dotnet3
+          project_id: ${{ env.PROJECT_ID }}
+          source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
+          entry_point: ${{ inputs.projectName }}.Function
+          event_trigger_type: google.pubsub.topic.publish
+          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+  prod:
+    needs: prod
+    environment:
+      name: production
+    env:
+      APPSETTINGS_JSON: ${{ secrets.appSettingsJsonProd }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsProd }}
+      PROJECT_ID: ${{ secrets.projectIdProd }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v2
+      - name: configure appsettings.json
+        run: |
+          echo ${{ env.APPSETTINGS_JSON }} > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/appsettings.json
+      - name: use .net core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ inputs.dotnetVersion }}
+      - name: nuget config
+        run: |
+          echo $(sed -e "s/\${USERNAME}/${{ inputs.nugetUserName }}/" -e "s@\${TOKEN}@${{ secrets.GITHUB_TOKEN }}@" ${{ inputs.nugetConfig }}) > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/nuget.config
+          cp ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/nuget.config ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.Tests/nuget.config
+      - name: build
+        run: dotnet build ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.sln --configuration "${{ inputs.config }}"
+      - name: test
+        run: dotnet test ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.sln --configuration "${{ inputs.config }}" --no-build
+      - name: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: '${{ env.GCP_CREDENTIALS }}'
+      - name: deploy pub/sub
+        if: ${{ inputs.trigger == 'pubsub' }}
+        uses: google-github-actions/deploy-cloud-functions@v0
+        with:
+          name: ${{ inputs.functionName }}
+          runtime: dotnet3
+          project_id: ${{ env.PROJECT_ID }}
+          source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
+          entry_point: ${{ inputs.projectName }}.Function
+          event_trigger_type: google.pubsub.topic.publish
+          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
