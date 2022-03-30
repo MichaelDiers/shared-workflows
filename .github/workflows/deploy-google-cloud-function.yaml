@@ -44,7 +44,7 @@ jobs:
       - name: use .net core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ input.dotnetVersion }}
+          dotnet-version: ${{ inputs.dotnetVersion }}
       - name: nuget config
         run: |
           echo $(sed -e "s/\${USERNAME}/${{ inputs.nugetUserName }}/" -e "s@\${TOKEN}@${{ secrets.GITHUB_TOKEN }}@" ${{ inputs.nugetConfig }}) > ${{ inputs.solutionFolder }}/${{ inputs.projectName }}/nuget.config
