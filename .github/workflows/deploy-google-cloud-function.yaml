@@ -11,6 +11,10 @@ on:
       solutionFolder:
         required: true
         type: string
+      trigger:
+        description: supported values are pubsub
+        required: true
+        type: string
       config:
         type: string
         default: Release
@@ -29,7 +33,6 @@ on:
       projectId:
         required: true
       subTopicName:
-        required: true
       appSettingsJson:
         required: true
 jobs:
@@ -57,7 +60,8 @@ jobs:
         uses: google-github-actions/auth@v0
         with:
           credentials_json: '${{ secrets.gcpCredentials }}'
-      - name: deploy
+      - name: deploy pub/sub
+        if: ${{ inputs.trigger == 'pubsub' }}
         uses: google-github-actions/deploy-cloud-functions@v0
         with:
           name: ${{ inputs.functionName }}
