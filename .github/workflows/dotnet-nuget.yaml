@@ -1,0 +1,73 @@
+name: build-and-publish-nuget
+on:
+  workflow_call:
+    inputs:
+      projectName:
+        required: true
+        type: string
+      solutionFolder:
+        required: true
+        type: string
+      config:
+        required: false
+        type: string
+        default: Release
+      dotnetVersion:
+        required: false
+        type: string
+        default: 3.1.x
+      nugetConfig:
+        required: false
+        type: string
+        default: .github/workflows/Generic-Nuget.config
+      nugetUserName:
+        required: false
+        type: string
+        default: MichaelDiers
+      packageSource:
+        required: false
+        type: string
+        default: 'https://nuget.pkg.github.com/MichaelDiers'
+      packageVersion:
+        required: false
+        type: string
+        default: '1.2'
+    secrets:
+      nugetAuthToken:
+        required: true    
+jobs:
+  prod:
+    env:
+      CONFIG: ${{ inputs.config }}
+      CSPROJ_FILE: ${{ inputs.solutionFolder }}/${{ input.projectName }}/${{ input.projectName }}.csproj
+      CSPROJ_NUGET_CONFIG: ${{ inputs.solutionFolder }}/${{ input.projectName }}/nuget.config
+      CSPROJ_TEST_NUGET_CONFIG: ${{ inputs.solutionFolder }}/${{ input.projectName }}.Tests/nuget.config
+      DOTNET_VERSION: ${{ inputs.dotnetVersion }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NUGET_AUTH_TOKEN: ${{ secrets.nugetAuthToken }}
+      NUGET_CONFIG: ${{ inputs.nugetConfig }}
+      NUGET_USERNAME: ${{ inputs.nugetUserName }}
+      PACKAGE_FILE_BASE: 'nugets/${{ inputs.solutionFolder }}/${{ input.projectName }}/bin'
+      PACKAGE_SOURCE: ${{ inputs.packageSource }} 
+      PACKAGE_VERSION: '${{ inputs.packageVersion }}.$GITHUB_RUN_NUMBER'
+      SOLUTION_FILE: ${{ inputs.solutionFolder }}/${{ input.projectName }}.csproj
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v2
+      - name: use .net core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: nuget config
+        run: |
+          echo $(sed -e "s/\${USERNAME}/${{ env.NUGET_USERNAME }}/" -e "s@\${TOKEN}@${{ env.GITHUB_TOKEN }}@" ${{ env.NUGET_CONFIG }}) > ${{ env.CSPROJ_NUGET_CONFIG }}
+          cp ${{ env.CSPROJ_NUGET_CONFIG }} ${{ env.CSPROJ_TEST_NUGET_CONFIG }}      
+      - name: build
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration "${{ env.CONFIG }}"
+      - name: test
+        run: dotnet test ${{ env.SOLUTION_FILE }} --configuration "${{ env.CONFIG }}" --no-build
+      - name: pack
+        run: dotnet pack "${{ env.CSPROJ_FILE }}" -c "${{ env.CONFIG }}" -p:PackageVersion=${{ env.PACKAGE_VERSION }} --no-build
+      - name: publish
+        run: dotnet nuget push "${{ env.PACKAGE_FILE_BASE }}/${{ env.CONFIG }}/*.nupkg" --source ${{ env.PACKAGE_SOURCE }} --api-key ${{ env.NUGET_AUTH_TOKEN }} --skip-duplicate --no-symbols true
