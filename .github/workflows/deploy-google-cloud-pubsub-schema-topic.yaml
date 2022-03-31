@@ -39,10 +39,6 @@ jobs:
       SCHEMA_FILE: ${{ inputs.schemaFile }}
       SCHEMA_TYPE: ${{ inputs.schemaType }}
     steps:
-      - name: print
-        run: |
-          echo ${{ github.event_name }}
-          echo ${{ github.event.workflow_run.conclusion }}
       - name: checkout
         uses: actions/checkout@v2
       - name: delete topic

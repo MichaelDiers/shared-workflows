@@ -50,6 +50,7 @@ on:
         required: true
 jobs:
   test:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     env:
       APPSETTINGS_JSON: ${{ secrets.appSettingsJsonTest }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
@@ -98,6 +99,7 @@ jobs:
           source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
           entry_point: ${{ inputs.projectName }}.Function
   stage:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
     needs: test
     env:
       APPSETTINGS_JSON: ${{ secrets.appSettingsJsonStage }}
@@ -147,6 +149,7 @@ jobs:
           source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
           entry_point: ${{ inputs.projectName }}.Function
   prod:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
     needs: stage
     environment:
       name: production
