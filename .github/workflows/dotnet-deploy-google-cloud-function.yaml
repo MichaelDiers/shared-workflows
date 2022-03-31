@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       trigger:
-        description: supported values are pubsub
+        description: supported values are pubsub, http
         required: true
         type: string
       config:
@@ -88,6 +88,15 @@ jobs:
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
           event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+      - name: deploy http
+        if: ${{ inputs.trigger == 'http' }}
+        uses: google-github-actions/deploy-cloud-functions@v0
+        with:
+          name: ${{ inputs.functionName }}
+          runtime: dotnet3
+          project_id: ${{ env.PROJECT_ID }}
+          source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
+          entry_point: ${{ inputs.projectName }}.Function
   stage:
     needs: test
     env:
@@ -128,6 +137,15 @@ jobs:
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
           event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+      - name: deploy http
+        if: ${{ inputs.trigger == 'http' }}
+        uses: google-github-actions/deploy-cloud-functions@v0
+        with:
+          name: ${{ inputs.functionName }}
+          runtime: dotnet3
+          project_id: ${{ env.PROJECT_ID }}
+          source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
+          entry_point: ${{ inputs.projectName }}.Function
   prod:
     needs: stage
     environment:
@@ -170,3 +188,12 @@ jobs:
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
           event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+      - name: deploy http
+        if: ${{ inputs.trigger == 'http' }}
+        uses: google-github-actions/deploy-cloud-functions@v0
+        with:
+          name: ${{ inputs.functionName }}
+          runtime: dotnet3
+          project_id: ${{ env.PROJECT_ID }}
+          source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
+          entry_point: ${{ inputs.projectName }}.Function
