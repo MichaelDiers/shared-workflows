@@ -28,7 +28,7 @@ on:
         required: true
 jobs:
   test:
-    if: ${{ github.GITHUB_EVENT_NAME != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
@@ -41,7 +41,7 @@ jobs:
     steps:
       - name: print
         run: |
-          echo ${{ github.GITHUB_EVENT_NAME }}
+          echo ${{ github.event_name }}
           echo ${{ github.event.workflow_run.conclusion }}
       - name: checkout
         uses: actions/checkout@v2
@@ -76,7 +76,7 @@ jobs:
         with:
           args: pubsub topics create ${{ env.TOPIC_NAME }} --message-encoding=${{ env.MESSAGE_ENCODING }} --schema=${{ env.SCHEMA_NAME }}
   stage:
-    if: ${{ github.GITHUB_EVENT_NAME == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
     needs: test
     runs-on: ubuntu-latest
     env:
@@ -121,7 +121,7 @@ jobs:
         with:
           args: pubsub topics create ${{ env.TOPIC_NAME }} --message-encoding=${{ env.MESSAGE_ENCODING }} --schema=${{ env.SCHEMA_NAME }}
   prod:
-    if: ${{ github.GITHUB_EVENT_NAME == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
     needs: stage
     environment:
       name: production 
