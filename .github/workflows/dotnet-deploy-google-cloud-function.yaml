@@ -55,6 +55,7 @@ jobs:
       APPSETTINGS_JSON: ${{ secrets.appSettingsJsonTest }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
       PROJECT_ID: ${{ secrets.projectIdTest }}
+      SUB_TOPIC_NAME: ${{ secrets.subTopicName }}_TEST
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
@@ -88,7 +89,7 @@ jobs:
           source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
-          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ env.SUB_TOPIC_NAME }}
       - name: deploy http
         if: ${{ inputs.trigger == 'http' }}
         uses: google-github-actions/deploy-cloud-functions@v0
@@ -105,6 +106,7 @@ jobs:
       APPSETTINGS_JSON: ${{ secrets.appSettingsJsonStage }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
       PROJECT_ID: ${{ secrets.projectIdStage }}
+      SUB_TOPIC_NAME: ${{ secrets.subTopicName }}_STAGE
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
@@ -138,7 +140,7 @@ jobs:
           source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
-          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ env.SUB_TOPIC_NAME }}
       - name: deploy http
         if: ${{ inputs.trigger == 'http' }}
         uses: google-github-actions/deploy-cloud-functions@v0
@@ -157,6 +159,7 @@ jobs:
       APPSETTINGS_JSON: ${{ secrets.appSettingsJsonProd }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsProd }}
       PROJECT_ID: ${{ secrets.projectIdProd }}
+      SUB_TOPIC_NAME: ${{ secrets.subTopicName }}_PROD
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
@@ -190,7 +193,7 @@ jobs:
           source_dir: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
           entry_point: ${{ inputs.projectName }}.Function
           event_trigger_type: google.pubsub.topic.publish
-          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ secrets.subTopicName }}
+          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ env.SUB_TOPIC_NAME }}
       - name: deploy http
         if: ${{ inputs.trigger == 'http' }}
         uses: google-github-actions/deploy-cloud-functions@v0
