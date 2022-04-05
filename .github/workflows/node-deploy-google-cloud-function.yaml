@@ -40,7 +40,7 @@ jobs:
       FUNCTION_NAME: ${{ inputs.functionName }}
       RUNTIME: ${{ inputs.runtime }}
       SOURCE_DIR: ${{ inputs.sourceDirectory }}
-      ENV_VARS: 'GCLOUD_PROJECT=${{ secrets.projectIdTest }},${{ secrets.envVarsTest }}
+      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdTest }},${{ secrets.envVarsTest }}
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
