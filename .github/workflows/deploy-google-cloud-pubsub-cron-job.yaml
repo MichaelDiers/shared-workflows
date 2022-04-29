@@ -1,0 +1,106 @@
+name: deploy-google-cloud-pubsub-cron-job
+on:
+  workflow_call:
+    inputs:
+      cronJobName:
+        required: true
+        type: string
+      schedule:
+        required: false
+        type: string
+        default: '0 1 * * *'
+    secrets:
+      gcpCredentialsTest:
+        required: true
+      gcpCredentialsStage:
+        required: true
+      gcpCredentialsProd:
+        required: true
+      projectIdTest:
+        required: true
+      projectIdStage:
+        required: true
+      projectIdProd:
+        required: true
+      pubSubTopicName:
+        required: true
+jobs:
+  test:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
+      PROJECT_ID: ${{ secrets.projectIdTest }}
+      CRON_JOB_NAME: ${{ inputs.cronJobName }}-test
+      PUB_SUB_TOPIC_NAME: ${{ secrets.pubSubTopicName }}_TEST
+      SCHEDULE: ${{ inputs.schedule }}
+    steps:
+      - name: delete cron job
+        uses: actions-hub/gcloud@master
+        continue-on-error: true
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID}}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }}
+      - name: create cron job
+        uses: actions-hub/gcloud@master
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: scheduler jobs create pubsub ${{ env.PUB_SUB_TOPIC_NAME }} --schedule="${{ env.SCHEDULE }}" --topic=${{ env.PUB_SUB_TOPIC_NAME }}
+  stage:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
+      PROJECT_ID: ${{ secrets.projectIdStage }}
+      CRON_JOB_NAME: ${{ inputs.cronJobName }}-stage
+      PUB_SUB_TOPIC_NAME: ${{ secrets.pubSubTopicName }}_STAGE
+      SCHEDULE: ${{ inputs.schedule }}
+    steps:
+      - name: delete cron job
+        uses: actions-hub/gcloud@master
+        continue-on-error: true
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID}}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }}
+      - name: create cron job
+        uses: actions-hub/gcloud@master
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: scheduler jobs create pubsub ${{ env.PUB_SUB_TOPIC_NAME }} --schedule="${{ env.SCHEDULE }}" --topic=${{ env.PUB_SUB_TOPIC_NAME }}
+  prod:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    needs: stage
+    environment:
+      name: production 
+    runs-on: ubuntu-latest
+    env:
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsProd }}
+      PROJECT_ID: ${{ secrets.projectIdProd }}
+      CRON_JOB_NAME: ${{ inputs.cronJobName }}-prod
+      PUB_SUB_TOPIC_NAME: ${{ secrets.pubSubTopicName }}_PROD
+      SCHEDULE: ${{ inputs.schedule }}
+    steps:
+      - name: delete cron job
+        uses: actions-hub/gcloud@master
+        continue-on-error: true
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID}}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }}
+      - name: create cron job
+        uses: actions-hub/gcloud@master
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: scheduler jobs create pubsub ${{ env.PUB_SUB_TOPIC_NAME }} --schedule="${{ env.SCHEDULE }}" --topic=${{ env.PUB_SUB_TOPIC_NAME }}
