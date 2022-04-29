@@ -42,7 +42,7 @@ jobs:
           PROJECT_ID: ${{ env.PROJECT_ID}}
           APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
         with:
-          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }}
+          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }} --quiet
       - name: create cron job
         uses: actions-hub/gcloud@master
         env:
@@ -68,7 +68,7 @@ jobs:
           PROJECT_ID: ${{ env.PROJECT_ID}}
           APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
         with:
-          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }}
+          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }} --quiet
       - name: create cron job
         uses: actions-hub/gcloud@master
         env:
@@ -96,7 +96,7 @@ jobs:
           PROJECT_ID: ${{ env.PROJECT_ID}}
           APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
         with:
-          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }}
+          args: scheduler jobs delete ${{ env.CRON_JOB_NAME }} --quiet
       - name: create cron job
         uses: actions-hub/gcloud@master
         env:
