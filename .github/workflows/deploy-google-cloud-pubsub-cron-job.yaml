@@ -75,7 +75,7 @@ jobs:
           PROJECT_ID: ${{ env.PROJECT_ID }}
           APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
         with:
-          args: scheduler jobs create pubsub ${{ env.CRON_JOB_NAME }} --schedule="${{ env.SCHEDULE }}" --topic=${{ env.PUB_SUB_TOPIC_NAME }}
+          args: scheduler jobs create pubsub ${{ env.CRON_JOB_NAME }} --schedule=\"${{ env.SCHEDULE }}\" --topic=${{ env.PUB_SUB_TOPIC_NAME }} --message-body=\"{}\"
   prod:
     if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
     needs: stage
@@ -103,4 +103,4 @@ jobs:
           PROJECT_ID: ${{ env.PROJECT_ID }}
           APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
         with:
-          args: scheduler jobs create pubsub ${{ env.CRON_JOB_NAME }} --schedule="${{ env.SCHEDULE }}" --topic=${{ env.PUB_SUB_TOPIC_NAME }}
+          args: scheduler jobs create pubsub ${{ env.CRON_JOB_NAME }} --schedule=\"${{ env.SCHEDULE }}\" --topic=${{ env.PUB_SUB_TOPIC_NAME }} --message-body=\"{}\"
