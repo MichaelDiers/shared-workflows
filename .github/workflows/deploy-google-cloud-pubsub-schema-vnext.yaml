@@ -1,0 +1,45 @@
+name: deploy-google-cloud-pubsub-schema-vnext
+on:
+  workflow_call:
+    inputs:
+      schemaFile:
+        required: true
+        type: string
+      schemaType:
+        required: true
+        type: string
+    secrets:
+      gcpCredentials:
+        required: true
+      projectId:
+        required: true
+      schemaName:
+        required: true
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ secrets.projectId }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentials }}
+      SCHEMA_NAME: ${{ secrets.schemaName }}
+      SCHEMA_TYPE: ${{ inputs.schemaType }}
+      SCHEMA_FILE: ${{ inputs.schemaFile }}      
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: delete schema
+        uses: actions-hub/gcloud@master
+        continue-on-error: true
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: pubsub schemas delete ${{ env.SCHEMA_NAME }} --quiet
+      - name: deploy schema
+        uses: actions-hub/gcloud@master
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+          APPLICATION_CREDENTIALS: ${{ env.GCP_CREDENTIALS }}
+        with:
+          args: pubsub schemas create ${{ env.SCHEMA_NAME }} --type=${{ env.SCHEMA_TYPE }} --definition-file=${{ env.SCHEMA_FILE }}
+      

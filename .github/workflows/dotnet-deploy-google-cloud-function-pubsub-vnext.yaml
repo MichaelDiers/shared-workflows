@@ -1,0 +1,99 @@
+name: dotnet-deploy-google-cloud-function-pubsub-vnext
+on:
+  workflow_call:
+    inputs:
+      functionName:
+        required: true
+        type: string
+      projectName:
+        required: true
+        type: string
+      solutionFolder:
+        required: true
+        type: string
+      trigger:
+        description: supported values are pubsub, http
+        required: true
+        type: string
+      config:
+        type: string
+        default: Release
+      dotnetVersion:
+        type: string
+        default: 3.1.x
+      nugetConfig:
+        type: string
+        default: .github/workflows/Generic-Nuget.config
+      nugetUserName:
+        type: string
+        default: MichaelDiers
+    secrets:
+      gcpCredentialsTest:
+        required: true
+      gcpCredentialsStage:
+        required: true
+      gcpCredentialsProd:
+        required: true
+      projectIdTest:
+        required: true
+      projectIdStage:
+        required: true
+      projectIdProd:
+        required: true
+      subTopicName:
+        required: false
+      appSettingsJsonTest:
+        required: true
+      appSettingsJsonStage:
+        required: true
+      appSettingsJsonProd:
+        required: true
+jobs:
+  function:
+    env:
+      APPSETTINGS_JSON: ${{ secrets.appSettingsJsonTest }}
+      BUILD_CONFIG: ${{ inputs.config }}
+      DOTNET_VERSION: ${{ inputs.dotnetVersion }}
+      FUNCTION_NAME: ${{ inputs.functionName }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NUGET_CONFIG: ${{ inputs.nugetConfig }}
+      NUGET_USER_NAME: ${{ inputs.nugetUserName }}
+      PROJECT_ID: ${{ secrets.projectIdTest }}
+      SUB_TOPIC_NAME: ${{ secrets.subTopicName }}
+
+      PROJECT_FOLDER: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}
+      PROJECT_TESTS_FOLDER: ${{ inputs.solutionFolder }}/${{ inputs.projectName }}.Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v2
+      - name: configure appsettings.json
+        run: |
+          echo ${{ env.APPSETTINGS_JSON }} > ${{ env.PROJECT_FOLDER }}/appsettings.json
+      - name: use .net core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: nuget config
+        run: |
+          echo $(sed -e "s/\${USERNAME}/${{ env.NUGET_USER_NAME }}/" -e "s@\${TOKEN}@${{ env.GITHUB_TOKEN }}@" ${{ env.NUGET_CONFIG }}) > ${{ env.PROJECT_FOLDER }}/nuget.config
+          cp ${{ env.PROJECT_FOLDER }}/nuget.config ${{ env.PROJECT_TESTS_FOLDER }}/nuget.config
+      - name: build
+        run: dotnet build ${{ env.PROJECT_FOLDER }}.sln --configuration "${{ env.BUILD_CONFIG }}"
+      - name: test
+        run: dotnet test ${{ env.PROJECT_FOLDER }}.sln --configuration "${{ env.BUILD_CONFIG }}" --no-build
+      - name: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: '${{ env.GCP_CREDENTIALS }}'
+      - name: deploy pub/sub
+        uses: google-github-actions/deploy-cloud-functions@v0
+        with:
+          name: ${{ env.FUNCTION_NAME }}
+          runtime: dotnet3
+          project_id: ${{ env.PROJECT_ID }}
+          source_dir: ${{ env.PROJECT_FOLDER }}
+          entry_point: ${{ env.PROJECT_NAME }}.Function
+          event_trigger_type: google.pubsub.topic.publish
+          event_trigger_resource: projects/${{ env.PROJECT_ID }}/topics/${{ env.SUB_TOPIC_NAME }}
