@@ -66,7 +66,7 @@ jobs:
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
   stage:
-    if: ${{ github.event_name == 'pull' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow.name == 'GoLiveStage') }}
+    if: ${{ github.event_name == 'pull' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && (github.event.workflow.name == 'GoLiveStage' || github.event.workflow.name == 'GoLiveProd')) }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
