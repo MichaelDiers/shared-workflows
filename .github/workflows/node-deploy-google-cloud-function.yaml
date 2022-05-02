@@ -50,7 +50,7 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: deploy function
-        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
+        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
   stage:
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
@@ -69,7 +69,7 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: deploy function
-        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
+        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
   prod:
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
@@ -88,4 +88,4 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: deploy function
-        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
+        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
