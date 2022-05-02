@@ -48,7 +48,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          config-file: ${{ env.GRAPH_QL_CONFIG }}
+          languages: javascript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
@@ -69,14 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
-        uses: actions/checkout@v3
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          config-file: ${{ env.GRAPH_QL_CONFIG }}
-          languages: javascript
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2      
+        uses: actions/checkout@v3      
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
