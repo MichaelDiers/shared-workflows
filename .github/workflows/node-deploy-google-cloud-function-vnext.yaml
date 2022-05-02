@@ -65,7 +65,7 @@ jobs:
       RUNTIME: ${{ inputs.runtime }}
       SOURCE_DIR: ${{ inputs.sourceDirectory }}
       ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdStage }},${{ secrets.envVarsStage }}
-      GRAPH_QL_CONFIG: ${{ inputs.sourceDirectory }}/configs/codeql.config
+      GRAPH_QL_CONFIG: ./${{ inputs.sourceDirectory }}/configs/codeql.config
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
@@ -74,6 +74,7 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           config-file: ${{ env.GRAPH_QL_CONFIG }}
+          languages: javascript
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2      
       - id: 'auth'
