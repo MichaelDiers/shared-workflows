@@ -35,8 +35,10 @@ jobs:
   foo:
     runs-on: ubuntu-latest
     steps:
-      - name: Name of the branch
-        run: echo "${{ github.event }}"  
+      - name: head_ref
+        run: echo "${{ github.github.head_ref }}"
+      - name: ref_name
+        run: echo "${{ github.ref_name }}"  
   test:
     if: ${{ github.head_ref || github.ref_name }} == 'main' || ${{ github.event.ref == 'GoLiveTest' }}
     env:
