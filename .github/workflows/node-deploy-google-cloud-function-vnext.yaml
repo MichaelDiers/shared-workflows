@@ -32,6 +32,14 @@ on:
       envVarsProd:
         required: true
 jobs:
+  foo:
+    steps:
+      - name: "echo github.head_ref"
+        run: echo "${{ github.head_ref }}"
+      - name: "echo github.ref_name"
+        run: echo "${{ github.ref_name }}"
+      - name: "echo github.event.ref"
+        run: echo "${{ github.event.ref }}"  
   test:
     if: ${{ github.head_ref || github.ref_name }} == 'main' || ${{ github.event.ref == 'GoLiveTest' }}
     env:
