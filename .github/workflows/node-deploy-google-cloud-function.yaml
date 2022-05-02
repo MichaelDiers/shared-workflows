@@ -51,8 +51,6 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
-      - name: add iam
-        run: 'gcloud functions add-iam-policy-binding ${{ env.FUNCTION_NAME }} --member=allUsers --role=roles/cloudfunctions.invoker'
   stage:
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
@@ -72,8 +70,6 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
-      - name: add iam
-        run: 'gcloud functions add-iam-policy-binding ${{ env.FUNCTION_NAME }} --member=allUsers --role=roles/cloudfunctions.invoker'
   prod:
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
@@ -93,5 +89,3 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
-      - name: add iam
-        run: 'gcloud functions add-iam-policy-binding ${{ env.FUNCTION_NAME }} --member=allUsers --role=roles/cloudfunctions.invoker'
