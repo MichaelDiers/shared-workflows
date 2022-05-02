@@ -33,6 +33,7 @@ on:
         required: true
 jobs:
   foo:
+    runs-on: ubuntu-latest
     steps:
       - name: Name of the branch
         run: echo "${{ github.event }}"  
