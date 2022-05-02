@@ -35,14 +35,6 @@ jobs:
   foo:
     runs-on: ubuntu-latest
     steps:
-      - name: head_ref
-        run: echo "${{ github.github.head_ref }}"
-      - name: ref_name
-        run: echo "${{ github.ref_name }}"
-      - name: event.ref
-        run: echo "${{ github.event.ref }}"
-      - name: event
-        run: echo "${{ toJSON(github.event) }}"
       - name: gh
         run: echo "${{ toJSON(github) }}"
   test:
@@ -73,10 +65,17 @@ jobs:
       RUNTIME: ${{ inputs.runtime }}
       SOURCE_DIR: ${{ inputs.sourceDirectory }}
       ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdStage }},${{ secrets.envVarsStage }}
+      GRAPH_QL_CONFIG: ${{ inputs.sourceDirectory }}/configs/codeql.config
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          config-file: ${{ env.GRAPH_QL_CONFIG }}
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2      
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
