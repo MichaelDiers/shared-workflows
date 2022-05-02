@@ -32,8 +32,12 @@ on:
       envVarsProd:
         required: true
 jobs:
+  print:
+    - name: print it
+      run: 'printf "${{ github.event.ref }}"'
+      
   test:
-    if: ${{ github.head_ref || github.ref_name }} == 'main'
+    if: ${{ github.head_ref || github.ref_name }} == 'main' || ${{ github.event.ref == 'GoLiveTest' }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
