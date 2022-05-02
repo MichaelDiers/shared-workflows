@@ -46,7 +46,7 @@ jobs:
       - name: gh
         run: echo "${{ toJSON(github) }}"
   test:
-    if: ${{ github.head_ref || github.ref_name }} == 'main' || ${{ github.event.ref == 'GoLiveTest' }}
+    if: ${{ github.event_name == 'workflow_dispatch' ||  github.event_name == 'push' }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
@@ -66,7 +66,7 @@ jobs:
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
   stage:
-    if: ${{ github.head_ref || github.ref_name }} == 'stage'
+    if: ${{ github.event_name == 'pull' }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
@@ -86,7 +86,8 @@ jobs:
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
   prod:
-    if: ${{ github.head_ref || github.ref_name }} == 'prod'
+    if: ${{ github.event_name == 'pull' }}
+    needs: stage
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsProd }}
