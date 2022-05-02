@@ -42,7 +42,9 @@ jobs:
       - name: event.ref
         run: echo "${{ github.event.ref }}"
       - name: event
-        run: echo "${{ github.event }}"
+        run: echo "${{ toJSON(github.event) }}"
+      - name: gh
+        run: echo "${{ toJSON(github) }}"
   test:
     if: ${{ github.head_ref || github.ref_name }} == 'main' || ${{ github.event.ref == 'GoLiveTest' }}
     env:
