@@ -38,7 +38,11 @@ jobs:
       - name: head_ref
         run: echo "${{ github.github.head_ref }}"
       - name: ref_name
-        run: echo "${{ github.ref_name }}"  
+        run: echo "${{ github.ref_name }}"
+      - name: event.ref
+        run: echo "${{ github.event.ref }}"
+      - name: event
+        run: echo "${{ github.event }}"
   test:
     if: ${{ github.head_ref || github.ref_name }} == 'main' || ${{ github.event.ref == 'GoLiveTest' }}
     env:
