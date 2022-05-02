@@ -35,7 +35,7 @@ jobs:
   foo:
     steps:
       - name: Name of the branch
-        run: echo "${{ github.head_ref || github.ref_name }}"  
+        run: echo "${{ github.event }}"  
   test:
     if: ${{ github.head_ref || github.ref_name }} == 'main' || ${{ github.event.ref == 'GoLiveTest' }}
     env:
