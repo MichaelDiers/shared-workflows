@@ -55,6 +55,8 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --service-account=${{ env.SERVICE_ACCOUNT }} --allow-unauthenticated --quiet'
+      - name: allow public access
+        run: 'gcloud functions add-iam-policy-binding ${{ env.FUNCTION_NAME }} --member=allUsers --role=roles/cloudfunctions.invoker'
   stage:
     if: ${{ (github.event_name == 'pull_request' && github.base_ref == 'stage') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && (github.event.workflow.name == 'GoLiveStage' || github.event.workflow.name == 'GoLiveProd')) }}
     env:
