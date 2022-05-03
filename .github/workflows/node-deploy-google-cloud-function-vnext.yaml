@@ -32,11 +32,6 @@ on:
       envVarsProd:
         required: true
 jobs:
-  foo:
-    runs-on: ubuntu-latest
-    steps:
-      - name: gh
-        run: echo "${{ toJSON(github) }}"
   test:
     if: ${{ github.event_name != 'pull_request' && github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'}}
     env:
