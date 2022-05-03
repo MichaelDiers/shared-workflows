@@ -55,10 +55,13 @@ jobs:
           node-version: 14
       - name: install dependencies
         run: npm install
+        working-directory: ${{ env.SOURCE_DIR }} 
       - name: lint
         run: npm run lint
+        working-directory: ${{ env.SOURCE_DIR }}
       - name: test
         run: npm run test
+        working-directory: ${{ env.SOURCE_DIR }}
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
