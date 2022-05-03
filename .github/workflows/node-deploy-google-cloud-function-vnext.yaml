@@ -38,7 +38,7 @@ jobs:
       - name: gh
         run: echo "${{ toJSON(github) }}"
   test:
-    if: ${{ github.event_name == 'workflow_dispatch' ||  github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow.name == 'GoLiveTest') }}
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'}}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
@@ -55,13 +55,9 @@ jobs:
           node-version: 14
       - name: install dependencies
         run: npm install
-        working-directory: ${{ env.SOURCE_DIR }} 
-      - name: lint
-        run: npm run lint
         working-directory: ${{ env.SOURCE_DIR }}
-      - name: test
-        run: npm run test
-        working-directory: ${{ env.SOURCE_DIR }}
+      - name: npm workflow
+        run: npm run workflow
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
@@ -78,7 +74,7 @@ jobs:
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
   stage:
-    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && (github.event.workflow.name == 'GoLiveStage' || github.event.workflow.name == 'GoLiveProd')) }}
+    if: ${{ (github.event_name == 'pull_request' && github.base_ref == 'stage') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && (github.event.workflow.name == 'GoLiveStage' || github.event.workflow.name == 'GoLiveProd')) }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
@@ -89,7 +85,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
-        uses: actions/checkout@v3      
+        uses: actions/checkout@v3
+      - name: use nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: install dependencies
+        run: npm install
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: npm workflow
+        run: npm run workflow
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          config-file: ${{ env.GRAPH_QL_CONFIG }}
+          languages: javascript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
@@ -99,8 +111,7 @@ jobs:
       - name: deploy function
         run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
   prod:
-    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow.name == 'GoLiveProd') }}
-    needs: stage
+    if: ${{ (github.event_name == 'pull_request' && github.base_ref == 'prod') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow.name == 'GoLiveProd') }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsProd }}
@@ -111,6 +122,22 @@ jobs:
     steps:
       - name: checkout source
         uses: actions/checkout@v3
+      - name: use nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: install dependencies
+        run: npm install
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: npm workflow
+        run: npm run workflow
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          config-file: ${{ env.GRAPH_QL_CONFIG }}
+          languages: javascript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
