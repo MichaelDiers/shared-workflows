@@ -42,7 +42,7 @@ jobs:
       RUNTIME: ${{ inputs.runtime }}
       SOURCE_DIR: ${{ inputs.sourceDirectory }}
       ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdTest }},${{ secrets.envVarsTest }}
-      SERVICE_ACCOUNT: ${{ secrets.serviceAccountTest }}@${{ secrets.projectIdTest }}.iam.gserviceaccount.com
+      SERVICE_ACCOUNT: 'serviceAccount:${{ secrets.serviceAccountTest }}@${{ secrets.projectIdTest }}.iam.gserviceaccount.com'
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
