@@ -131,6 +131,7 @@ jobs:
         working-directory: ${{ env.SOURCE_DIR }}
       - name: npm workflow
         run: npm run workflow
+        working-directory: ${{ env.SOURCE_DIR }}
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
