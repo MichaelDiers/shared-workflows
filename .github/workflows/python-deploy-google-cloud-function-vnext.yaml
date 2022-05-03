@@ -36,10 +36,9 @@ on:
 jobs:
   test:
     if: ${{ github.event_name != 'pull_request' && github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'}}
-    environment: TestEnvironment
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
-      GCP_CREDENTIALS: ${{ secrets.DEPLOYMENT_SERVICE_ACCOUNT_JSON }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
       RUNTIME: ${{ inputs.runtime }}
       SOURCE_DIR: ${{ inputs.sourceDirectory }}
       ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdTest }},${{ secrets.envVarsTest }}
@@ -60,10 +59,10 @@ jobs:
     if: ${{ (github.event_name == 'pull_request' && github.base_ref == 'stage') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && (github.event.workflow.name == 'GoLiveStage' || github.event.workflow.name == 'GoLiveProd')) }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
-      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
       RUNTIME: ${{ inputs.runtime }}
       SOURCE_DIR: ${{ inputs.sourceDirectory }}
-      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdTest }},${{ secrets.envVarsTest }}
+      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdStage }},${{ secrets.envVarsStage }}
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
@@ -80,10 +79,10 @@ jobs:
     if: ${{ (github.event_name == 'pull_request' && github.base_ref == 'prod') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow.name == 'GoLiveProd') }}
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
-      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsProd }}
       RUNTIME: ${{ inputs.runtime }}
       SOURCE_DIR: ${{ inputs.sourceDirectory }}
-      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdTest }},${{ secrets.envVarsTest }}
+      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdProd }},${{ secrets.envVarsProd }}
     runs-on: ubuntu-latest
     steps:
       - name: checkout source
