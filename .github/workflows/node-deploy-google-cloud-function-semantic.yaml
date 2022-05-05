@@ -1,0 +1,151 @@
+name: node-deploy-google-cloud-function-semantic
+on:
+  workflow_call:
+    inputs:
+      functionName:
+        required: true
+        type: string
+      sourceDirectory:
+        required: true
+        type: string
+      runtime:
+        required: false
+        type: string
+        default: nodejs14
+    secrets:
+      gcpCredentialsTest:
+        required: true
+      gcpCredentialsStage:
+        required: true
+      gcpCredentialsProd:
+        required: true
+      projectIdTest:
+        required: true
+      projectIdStage:
+        required: true
+      projectIdProd:
+        required: true
+      envVarsTest:
+        required: true
+      envVarsStage:
+        required: true
+      envVarsProd:
+        required: true
+jobs:
+  test:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (startsWith(github.event.commits[0].message, 'Test:') || startsWith(github.event.commits[0].message, 'Stage:') || startsWith(github.event.commits[0].message, 'Prod:'))) }}
+    environemnt: test-deployment
+    env:
+      FUNCTION_NAME: ${{ inputs.functionName }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
+      RUNTIME: ${{ inputs.runtime }}
+      SOURCE_DIR: ${{ inputs.sourceDirectory }}
+      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdTest }},${{ secrets.envVarsTest }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v3
+      - name: use nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: install dependencies
+        run: npm install
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: npm workflow
+        run: npm run workflow
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          config-file: ${{ env.GRAPH_QL_CONFIG }}
+          languages: javascript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ env.GCP_CREDENTIALS }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      - name: deploy function
+        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
+  stage:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (startsWith(github.event.commits[0].message, 'Stage:') || startsWith(github.event.commits[0].message, 'Prod:'))) }}
+    needs: test
+    environment: stage-deployment
+    env:
+      FUNCTION_NAME: ${{ inputs.functionName }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsStage }}
+      RUNTIME: ${{ inputs.runtime }}
+      SOURCE_DIR: ${{ inputs.sourceDirectory }}
+      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdStage }},${{ secrets.envVarsStage }}
+      GRAPH_QL_CONFIG: ./${{ inputs.sourceDirectory }}/configs/codeql.config
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v3
+      - name: use nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: install dependencies
+        run: npm install
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: npm workflow
+        run: npm run workflow
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          config-file: ${{ env.GRAPH_QL_CONFIG }}
+          languages: javascript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ env.GCP_CREDENTIALS }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      - name: deploy function
+        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
+  prod:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && startsWith(github.event.commits[0].message, 'Prod:')) }}
+    needs: stage
+    environment: prod-deployment
+    env:
+      FUNCTION_NAME: ${{ inputs.functionName }}
+      GCP_CREDENTIALS: ${{ secrets.gcpCredentialsProd }}
+      RUNTIME: ${{ inputs.runtime }}
+      SOURCE_DIR: ${{ inputs.sourceDirectory }}
+      ENV_VARS: GCLOUD_PROJECT=${{ secrets.projectIdProd }},${{ secrets.envVarsProd }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v3
+      - name: use nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: install dependencies
+        run: npm install
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: npm workflow
+        run: npm run workflow
+        working-directory: ${{ env.SOURCE_DIR }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          config-file: ${{ env.GRAPH_QL_CONFIG }}
+          languages: javascript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ env.GCP_CREDENTIALS }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      - name: deploy function
+        run: 'gcloud functions deploy ${{ env.FUNCTION_NAME }} --runtime=${{ env.RUNTIME }} --trigger-http --source=${{ env.SOURCE_DIR }} --set-env-vars=${{ env.ENV_VARS }} --quiet'
