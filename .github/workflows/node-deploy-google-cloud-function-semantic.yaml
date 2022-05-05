@@ -34,7 +34,7 @@ on:
 jobs:
   test:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (startsWith(github.event.commits[0].message, 'Test:') || startsWith(github.event.commits[0].message, 'Stage:') || startsWith(github.event.commits[0].message, 'Prod:'))) }}
-    environemnt: test-deployment
+    environment: test-deployment
     env:
       FUNCTION_NAME: ${{ inputs.functionName }}
       GCP_CREDENTIALS: ${{ secrets.gcpCredentialsTest }}
