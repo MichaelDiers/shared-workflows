@@ -1,0 +1,31 @@
+name: react-on-ghpages
+on:
+  workflow_call:
+    inputs:
+      github-repository:
+        required: true
+        type: string
+      working-directory:
+        required: true
+        type: string
+    secrets:
+      github-token:
+        required: true
+jobs:
+  main:
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install dependencies
+        run: npm install
+      - name: install gh-pages
+        run: npm install gh-pages
+      - name: build
+        run: npm run build
+      - name: Deploy with gh-pages
+        run: |
+          git remote set-url origin https://git:${secrets.github-token}@github.com/${inputs.github-repository}.git
+          npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
