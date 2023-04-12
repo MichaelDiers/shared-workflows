@@ -22,7 +22,7 @@ jobs:
       - name: echo
         run: |
           echo ${{ inputs.working-directory }}
-          echo ${inputs.github-repository}
+          echo ${{ inputs.github-repository }}
           echo ${{ secrets.github-token }}
       - name: install dependencies
         run: npm install
@@ -32,7 +32,7 @@ jobs:
         run: npm run build
       - name: Deploy with gh-pages
         run: |
-          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${inputs.github-repository}.git
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${{ inputs.github-repository }}.git
           npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.github-token }}
