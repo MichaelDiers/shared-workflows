@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: echo
+        run: |
+          echo ${{ inputs.working-directory }}
+          echo ${inputs.github-repository}
+          echo ${{ secrets.github-token }}
       - name: install dependencies
         run: npm install
       - name: install gh-pages
